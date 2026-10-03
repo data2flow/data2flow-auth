@@ -22,6 +22,8 @@ spring:
       port: ${DATA2FLOW_REDIS_PORT:6379}
       username: ${DATA2FLOW_REDIS_USERNAME:}
       password: ${DATA2FLOW_REDIS_PASSWORD:}
+      # staging·prod는 같은 Redis 서버를 DB 번호로 나눈다(prod 0, staging 1). gateway와 같은 값이어야 폐기 목록을 함께 본다
+      database: ${DATA2FLOW_REDIS_DATABASE:0}
       timeout: 1s
       connect-timeout: 1s
 server:

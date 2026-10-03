@@ -25,5 +25,5 @@
 |---|---|
 | `DATA2FLOW_AUTH_JWT_KEYS` | **필수.** JWT 서명 키 `kid:Base64(32바이트 이상)[@검증 종료 ISO-8601],…`. 없으면 기동하지 않습니다. 운영은 k8s Secret, 로컬은 루트 `.env` |
 | `DATA2FLOW_AUTH_JWT_ACTIVE_KEY_ID` | 키가 여러 개일 때 서명에 쓰는 키(교체: 새 키 추가 → 활성 변경 → 이전 키에 `@종료 시각` → 제거) |
-| `DATA2FLOW_REDIS_HOST`·`_PORT`·`_USERNAME`·`_PASSWORD` | 블랙리스트·호출 한도·MFA 티켓·폐기 이벤트용 Redis(키 접두사 `data2flow:`) |
+| `DATA2FLOW_REDIS_HOST`·`_PORT`·`_USERNAME`·`_PASSWORD`·`_DATABASE`(기본 0, staging 1 — gateway와 같은 값) | 블랙리스트·호출 한도·MFA 티켓·폐기 이벤트용 Redis(키 접두사 `data2flow:`) |
 | `DATA2FLOW_CORE_URI` | core-api 내부 API(기본 `http://data2flow-core-api`) |
