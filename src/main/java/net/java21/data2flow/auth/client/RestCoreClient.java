@@ -87,11 +87,9 @@ public class RestCoreClient implements CoreClient {
                 throw new DependencyUnavailableException("알 수 없는 회전 판정: " + decision);
             }
         }
-        if (reply.status() == 409 && CommonErrorCode.AUTH_SESSION_REVOKED.code().equals(reply.resultCode())) {
-            throw new RefreshReuseDetectedException();
-        }
+        // 재사용 판정: core는 401 AUTH_SESSION_REVOKED(오류 카탈로그), 예전 문서는 409. 둘 다 계보 폐기로 본다
         if (CommonErrorCode.AUTH_SESSION_REVOKED.code().equals(reply.resultCode())) {
-            throw new BusinessException(CommonErrorCode.AUTH_SESSION_REVOKED);
+            throw new RefreshReuseDetectedException();
         }
         if (CommonErrorCode.AUTH_SESSION_EXPIRED.code().equals(reply.resultCode())) {
             throw new BusinessException(CommonErrorCode.AUTH_SESSION_EXPIRED);

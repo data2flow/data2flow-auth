@@ -22,7 +22,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *
  * <ul>
  *   <li>API-IAM-30 verify-credentials: 원인 구분 없는 401, 5회 실패 시 LOCKED, PENDING_APPROVAL은 맞는 비밀번호일 때만 403</li>
- *   <li>API-IAM-36·35 Refresh 계보: ROTATED / GRACE(회전 후 30초 이내) / 재사용이면 계보 폐기 + 409 AUTH_SESSION_REVOKED</li>
+ *   <li>API-IAM-36·35 Refresh 계보: ROTATED / GRACE(회전 후 30초 이내) / 재사용이면 계보 폐기 + 401 AUTH_SESSION_REVOKED</li>
  *   <li>API-IAM-37 세션 폐기, API-IAM-39a 폐기 기록, API-IAM-61b MFA, API-IAM-46 장기 토큰, API-IAM-39 감사</li>
  * </ul>
  */
@@ -225,7 +225,7 @@ public final class FakeCore extends Dispatcher {
             return error(404, "RESOURCE_NOT_FOUND");
         }
         if (presented.revokedAt != null) {
-            return error(409, "AUTH_SESSION_REVOKED");
+            return error(401, "AUTH_SESSION_REVOKED");
         }
         if (presented.rotatedAt == null) {
             presented.rotatedAt = now;
@@ -242,7 +242,7 @@ public final class FakeCore extends Dispatcher {
             return ok(200, Map.of("decision", "GRACE", "effectiveJti", latest));
         }
         revokeLineage(presented.sid);
-        return error(409, "AUTH_SESSION_REVOKED");
+        return error(401, "AUTH_SESSION_REVOKED");
     }
 
     private MockResponse revocations(String path) {

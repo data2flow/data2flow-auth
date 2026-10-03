@@ -120,7 +120,7 @@ class RestCoreClientTest {
         reply(409, fail("AUTH_SESSION_REVOKED"));
         assertThatThrownBy(() -> client.rotateRefreshToken(rotate)).isInstanceOf(RefreshReuseDetectedException.class);
         reply(401, fail("AUTH_SESSION_REVOKED"));
-        assertThatThrownBy(() -> client.rotateRefreshToken(rotate)).hasMessage("AUTH_SESSION_REVOKED");
+        assertThatThrownBy(() -> client.rotateRefreshToken(rotate)).isInstanceOf(RefreshReuseDetectedException.class);
         reply(401, fail("AUTH_SESSION_EXPIRED"));
         assertThatThrownBy(() -> client.rotateRefreshToken(rotate)).hasMessage("AUTH_SESSION_EXPIRED");
         reply(404, fail("RESOURCE_NOT_FOUND"));
