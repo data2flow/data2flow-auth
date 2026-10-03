@@ -9,9 +9,63 @@ spring:
       enabled: true
   lifecycle:
     timeout-per-shutdown-phase: 30s
+  # 서비스 오류 문구(MFA_REQUIRED 등 IAM 코드, 4개 언어). 공통 코드 문구는 data2flow-contracts 번들(ADR-037)
+  messages:
+    basename: messages
+    encoding: UTF-8
+    fallback-to-system-locale: false
+  # s4 Redis(운영 10.116.64.14:6379). 재시작하면 사라져도 되는 캐시로만 쓰고 키 접두사는 data2flow:(ADR-022).
+  # 응답이 늦으면 오래 기다리지 않고 503으로 거부한다(fail-closed, IAM-07.10)
+  data:
+    redis:
+      host: ${DATA2FLOW_REDIS_HOST:localhost}
+      port: ${DATA2FLOW_REDIS_PORT:6379}
+      username: ${DATA2FLOW_REDIS_USERNAME:}
+      password: ${DATA2FLOW_REDIS_PASSWORD:}
+      timeout: 1s
+      connect-timeout: 1s
 server:
   port: 8080
   shutdown: graceful
+
+data2flow:
+  # 공개 경로: gateway가 토큰 없이 넘기는 로그인·재발급·로그아웃(design/auth.md §3.3). 신원 헤더가 없어도 된다
+  identity:
+    optional-paths: /auth/**
+  auth:
+    jwt:
+      issuer: data2flow-auth
+      audience: data2flow
+      # 서명 키는 k8s Secret data2flow-auth(로컬은 루트 .env)에서만 받는다. 형식 "kid:Base64(32바이트 이상)[@검증 종료 ISO-8601],…"
+      # 값이 없으면 기동하지 않는다(design/auth.md §11 #8)
+      keys: ${DATA2FLOW_AUTH_JWT_KEYS:}
+      active-key-id: ${DATA2FLOW_AUTH_JWT_ACTIVE_KEY_ID:}
+      clock-skew: 30s
+    token:
+      access-ttl: 60m
+      refresh-ttl: 6h
+    session:
+      idle-timeout: 30m
+      absolute-ttl: 12h
+    mfa:
+      ticket-ttl: 5m
+      max-attempts: 5
+    rate-limit:
+      window: 60s
+      login-per-ip: 20
+      login-per-login-id: 5
+      refresh-per-sid: 10
+      mfa-per-ip: 20
+    revocation:
+      watch-interval: 15s
+    core:
+      base-url: ${DATA2FLOW_CORE_URI:http://data2flow-core-api}
+      connect-timeout: 1s
+      read-timeout: 2s
+    refresh-cookie:
+      name: data2flow_refresh
+      path: /api/v1/auth
+      secure: true
 
 # actuator는 8081(프로브·지표 전용, k8s Service로 노출하지 않음)
 management:

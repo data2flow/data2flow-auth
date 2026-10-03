@@ -25,6 +25,10 @@
         <tomcat.version>11.0.26</tomcat.version>
         <jackson-bom.version>3.1.7</jackson-bom.version>
         <data2flow-contracts.version>0.1.0-SNAPSHOT</data2flow-contracts.version>
+        <!-- Nimbus JOSE+JWT: Apache-2.0. JWT 서명·검증은 auth만 한다(IAM-07.02, BR-IAM-36) -->
+        <nimbus-jose-jwt.version>10.9</nimbus-jose-jwt.version>
+        <!-- MockWebServer: Apache-2.0 (gateway와 같은 버전, design/testing/backend.md) -->
+        <mockwebserver.version>4.12.0</mockwebserver.version>
     </properties>
 
     <!-- data2flow-contracts·data2flow-bom은 GitHub Packages에 있다. 읽기에도 토큰이 필요하다(README 참고) -->
@@ -61,6 +65,21 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
+        <!-- core-api 내부 API 호출(RestClient) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-restclient</artifactId>
+        </dependency>
+        <!-- 블랙리스트·호출 한도·MFA 티켓·폐기 이벤트(Pub/Sub). 재시작하면 사라져도 되는 캐시로만 쓴다(ADR-022) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>nimbus-jose-jwt</artifactId>
+            <version>${nimbus-jose-jwt.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
@@ -79,6 +98,33 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-webmvc-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- 테스트 전용. 라이선스: Testcontainers MIT, MockWebServer Apache-2.0, Awaitility Apache-2.0, ArchUnit Apache-2.0 -->
+        <dependency>
+            <groupId>net.java21.data2flow</groupId>
+            <artifactId>data2flow-contracts-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.tngtech.archunit</groupId>
+            <artifactId>archunit-junit5</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers-junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>mockwebserver</artifactId>
+            <version>${mockwebserver.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

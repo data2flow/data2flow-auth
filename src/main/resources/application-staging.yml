@@ -3,3 +3,6 @@ logging:
   structured:
     format:
       console: ecs
+    json:
+      # 로그의 비밀값(password=…, token 등)을 가린다(NFR-03.02, data2flow-contracts §11)
+      customizer: net.java21.data2flow.contracts.secret.SecretMaskingJsonMembersCustomizer
