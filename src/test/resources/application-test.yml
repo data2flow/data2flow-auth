@@ -1,0 +1,20 @@
+# 테스트 프로필(design/testing/backend.md §2). 비밀값은 고정 더미이고, Redis·core 주소는 @DynamicPropertySource로 넣는다.
+# local 프로필의 루트 .env 가져오기를 쓰지 않으려고 테스트는 모두 이 프로필로 돈다.
+spring:
+  data:
+    redis:
+      username:
+      password:
+data2flow:
+  auth:
+    jwt:
+      # 테스트 전용 더미 키(운영 키 아님): "test-only-signing-key-0000000001"
+      keys: "t1:dGVzdC1vbmx5LXNpZ25pbmcta2V5LTAwMDAwMDAwMDE="
+      active-key-id: t1
+    revocation:
+      watch-interval: 1h
+    refresh-cookie:
+      secure: true
+logging:
+  level:
+    net.java21.data2flow: INFO
