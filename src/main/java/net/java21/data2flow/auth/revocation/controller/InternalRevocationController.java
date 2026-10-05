@@ -28,6 +28,7 @@ public class InternalRevocationController {
     @PostMapping("/blacklists")
     public ResponseEntity<Void> blacklist(@Valid @RequestBody BlacklistRequest request) {
         revocations.revoke(request.sids(), request.jtis(), request.reason());
+        revocations.revokeAccessTokens(request.tokenIds(), request.reason());
         return ResponseEntity.noContent().build();
     }
 

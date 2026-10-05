@@ -186,6 +186,22 @@ class SessionIT extends AuthIntegrationTest {
     }
 
     @Test
+    @DisplayName("[IAM-05.03][AT-IAM-12.4] 장기 토큰 폐기(core → POST /internal/auth/blacklists tokenIds) → EVT-IAM-03 TOKEN_ID 발행, 블랙리스트에는 넣지 않음 — TC-IAM-150")
+    void revokeLongLivedTokens() {
+        List<JsonNode> events = listenRevocations();
+
+        Response res = postJson("/internal/auth/blacklists",
+                Map.of("sids", List.of(), "jtis", List.of(), "tokenIds", List.of("41", "42"), "reason", "API_TOKEN_REVOKED"),
+                Map.of("X-CALLER-SERVICE", "data2flow-core-api"));
+
+        assertThat(res.status()).isEqualTo(204);
+        await().atMost(Duration.ofSeconds(5)).untilAsserted(() -> assertThat(events)
+                .filteredOn(e -> e.path("reason").asString().equals("API_TOKEN_REVOKED"))
+                .extracting(e -> e.path("type").asString() + ":" + e.path("value").asString())
+                .containsExactlyInAnyOrder("TOKEN_ID:41", "TOKEN_ID:42"));
+    }
+
+    @Test
     @DisplayName("[IAM-07.08][AT-IAM-08.4] 활성 로그인 한 줄(sid)만 종료 → 그 기기만 거부되고 다른 기기는 유지")
     void revokeSingleSession() {
         Tokens deviceA = loginOk("kim.op", "correct-horse-battery");

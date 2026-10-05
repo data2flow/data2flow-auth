@@ -60,6 +60,20 @@ public class RevocationService {
                 .log("토큰 폐기 등록");
     }
 
+    /**
+     * 장기 토큰 폐기 알림(IAM-05.03): EVT-IAM-03 {@code TOKEN_ID}만 낸다. 폐기 원천은 core DB이고 introspection이 매번 core(API-IAM-46)에
+     * 묻으므로 Redis 블랙리스트에는 넣지 않는다. 발행을 놓쳐도 gateway 캐시 수명(30초) 안에 거부된다.
+     */
+    public void revokeAccessTokens(Collection<String> tokenIds, String reason) {
+        Set<String> ids = clean(tokenIds);
+        if (ids.isEmpty()) {
+            return;
+        }
+        Instant now = clock.instant();
+        ids.forEach(id -> publisher.publish(new RevocationEvent(RevocationEvent.Type.TOKEN_ID, id, reason, now)));
+        log.atInfo().addKeyValue("tokenIds", ids.size()).addKeyValue("reason", reason).log("장기 토큰 폐기 알림");
+    }
+
     public void revokeSession(String sid, String reason) {
         revoke(List.of(sid), List.of(), reason);
     }
