@@ -1,5 +1,6 @@
 package net.java21.data2flow.auth.config;
 
+import net.java21.data2flow.contracts.http.InternalHttpClients;
 import net.java21.data2flow.auth.client.CoreClient;
 import net.java21.data2flow.auth.client.RestCoreClient;
 import net.java21.data2flow.auth.session.domain.SessionPolicy;
@@ -41,7 +42,7 @@ public class AuthConfig {
     @Bean
     public CoreClient coreClient(RestClient.Builder builder, AuthProperties properties, JsonMapper jsonMapper) {
         AuthProperties.Core core = properties.core();
-        HttpClient http = HttpClient.newBuilder().connectTimeout(core.connectTimeout()).build();
+        HttpClient http = InternalHttpClients.create(core.connectTimeout());
         JdkClientHttpRequestFactory factory = new JdkClientHttpRequestFactory(http);
         factory.setReadTimeout(core.readTimeout());
         return new RestCoreClient(builder.clone().baseUrl(core.baseUrl().toString()).requestFactory(factory).build(), jsonMapper);
